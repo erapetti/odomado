@@ -1,0 +1,8 @@
+[% FILTER replace(",]","]") %][% FILTER replace ("],\n]$","]\n]") -%]
+[
+  ["Fecha","1min","5min","15min"],
+[% FOREACH item IN values -%]
+  ["[% item.0 %]",  [% item.1 %], [% item.2 %], [% item.3 %]],
+[% END -%]
+]
+[% END %][% END %]

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="es"> 
+<head><title></title></head> 
+<body>
+
+<div class="modal" tabindex="-1" role="dialog" style="position:inherit;display:block">
+  <div class="modal-dialog" role="document" style="width:100%;max-width:100%">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Envío de mensajes a las listas</h5>
+      </div>
+      <div class="modal-body" id="modal-body">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="modal-back" id="modal-back" onClick="history.go(-1)">Atrás</button>
+        <button type="submit" class="btn btn-primary" id="modal-submit">Continuar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="form_smpro" style="display:none">
+<form class="needs-validation">
+  <input type="hidden" name="session_id" value="[% smpro_sid %]">
+  <div class="form-group">
+    <label for="subject">Asunto:</label>
+    <input type="TEXT" size="30" name="mail_subject" id="subject" class="form-control" required>
+  </div>
+  <div class="form-group">
+    <label for="length">Cantidad de caracteres del mensaje:</label>
+    <input type="TEXT" name="length" id="length" class="form-control" readonly tabindex="-1">
+  </div>
+  <div class="form-group">
+    <label for="lista">Lista:</label>
+      <select name="lista" size="1" id="lista" class="custom-select">
+        <option value="2,3,4,5,6">El Castellano 2 a 6</option>
+        <option value="8">La palabra del día (8)</option>
+      </select>
+  </div>
+<input type="hidden" name="html" value="on">
+<input type="hidden" name="no_credit" value="on">
+<input type="hidden" name="sendbatches" value="on">
+  <div class="form-group">
+    <label for="bnumber">Cantidad de direcciones en cada tanda:</label>
+    <input type="TEXT" name="bnumber" size="4" value="1000" class="form-control">
+  </div>
+  <div class="form-group">
+    <label for="every">Intervalo entre tandas:</label>
+      <select name="every" size="1" id="every" class="custom-select">
+        <option value="30">30 seguntos</option>
+        <option value="60">1 minuto</option>
+        <option value="300">5 minutos</option>
+        <option value="600">10 minutos</option>
+        <option value="900">15 minutos</option>
+        <option value="1800" selected>30 minutos</option>
+        <option value="3600">1 hora</option>
+        <option value="7200">2 horas</option>
+        <option value="10800">3 horas</option>
+        <option value="14400">4 horas</option>
+        <option value="18000">5 horas</option>
+        <option value="21600">6 horas</option>
+        <option value="43200">12 horas</option>
+        <option value="86400">24 horas</option>
+      </select>
+  </div>
+<textarea style="display:none" name="message" id="message"></textarea>
+  <div class="form-group">
+    <label for="password">Contraseña</label>
+    <input type="PASSWORD" name="password" id="password" class="form-control" required>
+  </div>
+<input type="hidden" value="    Send    " name="mailing">
+</form>
+</div>
+
+<script>
+var mensaje = "";
+
+function prevalidar() {
+	
+  mensaje = $('#mensaje').val();
+  if (mensaje.length>0) {
+    if ($('#modal-submit').is(':disabled')) {
+      $('#modal-submit').removeAttr('disabled');
+    }
+  } else {
+    $('#modal-submit').attr('disabled','disabled');
+  }
+}
+
+function show_form_initial(e) {
+  if (typeof e.state === 'undefined') {
+	history.pushState({option:'post', page:1, fn:'show_form_initial'}, null, "");
+  }
+  $('#modal-body').html('<form><p>Texto HTML que se va a enviar:</p><textarea name="mensaje" id="mensaje" style="width:100%" rows="10">'+mensaje+'</textarea></form>');
+  $('#mensaje').on('input',prevalidar);
+  $('#modal-submit').attr('disabled','disabled');
+  $('#modal-back').attr('disabled','disabled');
+  $('#modal-submit').blur().off('click').click(validarHTML).text("Validar");
+}
+
+var validacion;
+function validarHTML(e) {
+  e.preventDefault();
+
+  $.ajaxSetup({method:'POST'});
+  var data = new FormData();
+  data.append('content', mensaje);
+
+  $.ajax('https://validator.w3.org/nu/', {contentType:false,processData:false,data:data}).done(function(result) {
+	validacion = $($.parseHTML(result)).filter('#results').html();
+	resultadoValidacionHTML(e);
+  });
+}
+
+function resultadoValidacionHTML(e) {
+  if (typeof e.state === 'undefined') {
+	history.pushState({option:'post', page:2, fn:'resultadoValidacionHTML'}, null, "");
+  }
+  $('#modal-back').removeAttr('disabled');
+  $('#modal-body').html(validacion);
+  $('#modal-body #source,#modal-body ol.source,#modal-body div.details').hide();
+  $('#modal-submit').blur().off('click').click(show_form_smpro).text("Configurar envío");
+}
+
+function show_form_smpro(e) {
+  e.preventDefault();
+  if (typeof e.state === 'undefined') {
+	  history.pushState({option:'post', page:3, fn:'show_form_smpro'}, null, "");
+  }
+  $('#modal-body').html( $('#form_smpro').html() );
+  $('#modal-body #message').val(mensaje);
+  $('#modal-body #length').val(mensaje.length);
+  $('#modal-submit').blur().off('click').click(send_form_smpro).text("Enviar mensaje");
+}
+
+function send_form_smpro(e) {
+  e.preventDefault();
+
+  var data = $('#modal-body form').serialize();
+
+  $.ajax('https://listas.elcastellano.org/cgi-bin/smpro_sw/s.pl', {data:data,contentType:'application/x-www-form-urlencoded'}).done(function(result) {
+	envio = result; //$($.parseHTML(result)).filter('body').html();
+	resultadoEnvio(e);
+  });
+}
+
+function resultadoEnvio(e) {
+  if (typeof e.state === 'undefined') {
+	history.pushState({option:'post', page:5, fn:'resultadoEnvio'}, null, "");
+  }
+  $('#modal-body').html(envio);
+  $('#modal-submit').blur().off('click').click(show_form_initial).text("Reiniciar");
+}
+
+show_form_initial({});
+</script>
+
+</body>
+</html>

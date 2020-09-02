@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es"> 
+<head><title></title></head> 
+<body>
+
+<script>
+UXreset();
+</script>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+  <h1 class="h2">Monitor de envíos</h1>
+  <div class="btn-toolbar mb-2 mb-md-0">
+    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+      Últimos 7 días
+    </button>
+  </div>
+</div>
+
+<p>Evolución de la cantidad de mensajes de correo en cola en el servidor, clasificados según cuántos días hace que fueron creados.</p>
+<p>Los mensajes del último envío van a estar en los grupos de activos, 0 y 1 día, los grupos de más días son de los mensajes que no se pudieron entregar en su momento y el servidor todavía está reintentando el envío.</p>
+
+<div id="chart" style="min-width: 900px; height: 500px; width:100%"><i class="fas fa-spinner"></i></div>
+
+<script>
+google.charts.load('current', {'packages':['corechart']});
+google.charts.setOnLoadCallback(drawChart);
+
+function drawChart() {
+        var options = {
+          title: '[% title %]',
+          legend: { position: 'bottom' },
+	  isStacked: true,
+        };
+
+        var chart = new google.visualization.AreaChart(document.getElementById('chart'));
+
+	var data = google.visualization.arrayToDataTable([
+          ["Fecha",[% FOREACH c IN columns %]"[% c %]", [% END %]],
+[% FOREACH fecha IN values.keys.sort -%]
+  ["[% fecha %]", [% FOREACH c IN columns -%][% values.$fecha.$c+0 %],[% END %]],
+[% END -%]
+        ]);
+
+        chart.draw(data, options);
+}
+</script>
+
+<script>
+function recargar() {
+	$.ajax('?option=[% option %]&data=1').done(function(result) {
+		data = google.visualization.arrayToDataTable(result);
+		chart.draw(data, options);
+	});
+};
+var refreshInterval = setInterval(recargar, 60000);
+</script>
+
+</body>
+</html>

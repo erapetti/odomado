@@ -1,0 +1,41 @@
+<html lang="es">
+  <head>
+    <title>Ingreso</title>
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="41139243817-sma5tvvn62ooklcj7de12atugqsf8kio.apps.googleusercontent.com">
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <style>
+	body {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100%;
+	}
+	div#main {
+		padding: 5rem;
+		border: 1px solid #ccc;
+		max-width: 50%;
+	}
+    </style>
+  </head>
+  <body>
+    <div id="main">
+      <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+    </div>
+    <script>
+      function onSignIn(googleUser) {
+        // Useful data for your client-side scripts:
+//         var profile = googleUser.getBasicProfile();
+        // The ID token you need to pass to your backend:
+        var id_token = googleUser.getAuthResponse().id_token;
+
+	document.getElementById("idtoken").value = id_token;
+	document.getElementById("form").submit();
+      }
+    </script>
+
+    <form id="form" method="post" style="display:none">
+      <input type="text" name="idtoken" id="idtoken">
+    </form>
+  </body>
+</html>

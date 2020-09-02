@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es"> 
+<head><title></title></head> 
+<body>
+
+<script>
+UXreset();
+</script>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+  <h1 class="h2">Monitor de envíos</h1>
+  <div class="btn-toolbar mb-2 mb-md-0">
+    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+      Últimos 7 días
+    </button>
+  </div>
+</div>
+
+<div id="chart" style="min-width: 900px; height: 500px; width:100%"><i class="fas fa-spinner"></i></div>
+
+<script>
+google.charts.load('current', {'packages':['corechart']});
+google.charts.setOnLoadCallback(drawChart);
+
+function drawChart() {
+        var options = {
+          title: '[% title %]',
+          legend: { position: 'bottom' },
+          vAxis: { maxValue: 10 },
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('chart'));
+
+	var data = google.visualization.arrayToDataTable([
+          ['Fecha', '1min', '5min', '15min'],
+[% FOREACH item IN values -%]
+          ['[% item.0 %]',  [% item.1 %], [% item.2 %], [% item.3 %]],
+[% END -%]
+        ]);
+
+        chart.draw(data, options);
+}
+</script>
+
+<script>
+function recargar() {
+	$.ajax('?option=[% option %]&data=1').done(function(result) {
+		data = google.visualization.arrayToDataTable(result);
+		chart.draw(data, options);
+	});
+};
+var refreshInterval = setInterval(recargar, 60000);
+</script>
+
+</body>
+</html>

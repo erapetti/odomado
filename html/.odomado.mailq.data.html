@@ -1,0 +1,8 @@
+[% FILTER replace(",]","]") %][% FILTER replace ("],\n]$","]\n]") -%]
+[
+  ["Fecha",[% FOREACH c IN columns %]"[% c %]",[% END %]],
+[% FOREACH fecha IN values.keys.sort -%]
+  ["[% fecha %]", [% FOREACH c IN columns -%][% values.$fecha.$c+0 %],[% END %]],
+[% END -%]
+]
+[% END %][% END %]

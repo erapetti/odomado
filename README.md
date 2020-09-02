@@ -37,9 +37,15 @@ package config {
         $dsn = "DBI:mysql:rebotes";
         $username = "odomado";
         $password = 'pass';
+	$url = "https://example.com/cgi-bin/odomado.pl";
 }
 
 1;
 ```
 
+4. Add data gatherer task
+
+```
+*/5 * * * * /usr/local/bin/odomado_task.pl
+```
 

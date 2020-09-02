@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head><title></title></head>
+<body>
+
+<script>
+UXreset();
+
+var data = [
+[%- FOREACH site IN values.keys.sort.reverse %][
+	[%- FOREACH lista IN values.$site.keys.nsort %]
+  { "id":"[% site | replace('\.','_') %]-[% lista %]","lid":[% lista %],"nombre":"[% values.$site.$lista.name %]","fecha":"[% values.$site.$lista.fecha %]","envios":[% values.$site.$lista.count %],"total":[% values.$site.$lista.total %],"avance":[% values.$site.$lista.avance %],"terminado":"[% values.$site.$lista.fmt_mtime %]","vieja":[% values.$site.$lista.stalled+0 %],"site":"[% values.$site.$lista.site %]" },
+	[%- END %]
+],[%- END %]
+];
+
+</script>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+  <h1 class="h2">Monitor de envíos</h1>
+</div>
+
+<p style="font-family:Arial;font-size:15px">[% title %]</p>
+
+[% FOREACH site IN values.keys.sort.reverse %]
+[% FOREACH lista IN values.$site.keys.nsort %]
+<div class="card" style="margin-bottom:1rem" id="lista-[% site | replace('\.','_') %]-[% lista %]">
+  <div class="card-header"><span class="site"></span> [Lista #<span class="lista"></span>] <strong><span class="nombre"></span></strong></div>
+  <div class="card-body">
+
+    <p>Último envío: <span class="fecha"></span> enviado a <span class="envios"></span> de <span class="total"></span> direcciones (<span class="avance"></span>%).<p>
+<p class="terminado">Envio terminado: <span class="terminado"></span></p>
+    <div class="progress">
+      <div class="progress-bar" role="progressbar"></div>
+    </div>
+  </div>
+</div>
+[% END %]
+[% END %]
+
+<script>
+function mostrar(data) {
+	data.forEach(function(site) {
+		site.forEach(function(l) {
+			if (l.id) {
+				$('#lista-'+l.id+' span.lista').html(l.lid);
+				$('#lista-'+l.id+' span.site').html(l.site);
+				$('#lista-'+l.id+' span.nombre').html(l.nombre);
+				$('#lista-'+l.id+' span.fecha').html(l.fecha);
+				$('#lista-'+l.id+' span.envios').html(l.envios);
+				$('#lista-'+l.id+' span.total').html(l.total);
+				$('#lista-'+l.id+' span.avance').html(l.avance);
+				$('#lista-'+l.id+' div.progress-bar').removeClass('bg-success').removeClass('bg-danger');
+				if (l.avance >= 99) {
+					$('#lista-'+l.id+' span.terminado').html(l.terminado);
+					$('#lista-'+l.id+' div.progress-bar').addClass('bg-success');
+				} else {
+					$('#lista-'+l.id+' p.terminado').hide();
+					if (l.vieja == 1) {
+						$('#lista-'+l.id+' div.progress-bar').addClass('bg-danger');
+					}
+				}
+				$('#lista-'+l.id+' div.progress-bar').css('width',l.avance+'%');
+			}
+		});
+	});
+};
+mostrar(data);
+</script>
+
+<script>
+function recargar() {
+        $.ajax('?option=[% option %]&data=1').done(function(result) {
+		mostrar(result);
+        });
+};
+var refreshInterval = setInterval(recargar, 60000);
+</script>
+
+</body>
+</html>

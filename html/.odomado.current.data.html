@@ -1,0 +1,8 @@
+[
+[%- FOREACH site IN values.keys.sort.reverse %][
+        [%- FOREACH lista IN values.$site.keys.nsort %]
+  { "id":"[% site | replace('\.','_') %]-[% lista %]","lid":[% lista %],"nombre":"[% values.$site.$lista.name %]","fecha":"[% values.$site.$lista.fecha %]","envios":[% values.$site.$lista.count %],"total":[% values.$site.$lista.total %],"avance":[% values.$site.$lista.avance %],"terminado":"[% values.$site.$lista.fmt_mtime %]","vieja":[% values.$site.$lista.stalled+0 %],"site":"[% values.$site.$lista.site %]" },
+        [%- END %]{}
+],[%- END %][]
+]
+

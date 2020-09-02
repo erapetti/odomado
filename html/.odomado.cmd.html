@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es"> 
+<head><title></title></head> 
+<body>
+
+<script>
+UXreset();
+</script>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+  <h1 class="h2">Administración</h1>
+</div>
+
+<div><i class="fas fa-spinner"></i></div>
+<pre id="output"></pre>
+
+<script>
+function endWait(iid) {
+	clearInterval(iid);
+        $('#content div i.fa-spinner').css('visibility','hidden');
+}
+
+var iid;
+if (iid) {
+	clearInterval(iid);
+}
+iid = setInterval(function(){
+		$('#output').load('[% nextURL %]',function(responseText, textStatus, req) {
+			if(req.status != 206) {
+				endWait(iid);
+			}
+		});
+	  }, 3000);
+
+setTimeout(function(){
+	endWait(iid);
+  }, 30000);
+</script>
+
+</body>
+</html>
