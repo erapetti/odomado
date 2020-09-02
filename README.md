@@ -1,0 +1,2 @@
+# odomado
+Mailing list manager
