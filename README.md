@@ -34,7 +34,7 @@ GRANT SELECT, INSERT on omodado.* to `odomado`@`localhost`;
 
 ```
 package config {
-        $dsn = "DBI:mysql:rebotes";
+        $dsn = "DBI:mysql:odomado";
         $username = "odomado";
         $password = 'pass';
 	$url = "https://example.com/cgi-bin/odomado.pl";
